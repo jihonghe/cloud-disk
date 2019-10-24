@@ -14,10 +14,12 @@ import (
 
 func main() {
     http.HandleFunc("/file/upload", handler.FileUploadHandler)
-    http.HandleFunc("/file/upload/success", handler.UploadFileSuccessHandler)
+    http.HandleFunc("/file/upload/success", handler.FileUploadSuccessHandler)
     http.HandleFunc("/file/meta", handler.GetFileMetaHandler)
     http.HandleFunc("/file/query", handler.FileQueryHandler)
     http.HandleFunc("/file/download", handler.FileDownloadHandler)
+    http.HandleFunc("/file/update", handler.FileMetaUpdateHandler)
+    http.HandleFunc("/file/delete", handler.FileDeleteHandler)
     err := http.ListenAndServe(":8080", nil)
 
     if err != nil {

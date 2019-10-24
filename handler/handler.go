@@ -64,7 +64,7 @@ func FileUploadHandler(writer http.ResponseWriter, request *http.Request) {
     }
 }
 
-func UploadFileSuccessHandler(writer http.ResponseWriter, request *http.Request) {
+func FileUploadSuccessHandler(writer http.ResponseWriter, request *http.Request) {
     _, _ = io.WriteString(writer, "Upload file successfully.")
 }
 
@@ -78,6 +78,46 @@ func GetFileMetaHandler(writer http.ResponseWriter, request *http.Request) {
         return
     }
     _, _ = writer.Write(data)
+}
+
+func FileMetaUpdateHandler(writer http.ResponseWriter, request *http.Request) {
+    _ = request.ParseForm()
+    opType := request.Form.Get("op")
+    curFileSha1 := request.Form.Get("fileHash")
+    newFileName := request.Form.Get("fileName")
+
+    if opType != "0" {
+        writer.WriteHeader(http.StatusInternalServerError)
+        return
+    }
+    if request.Method != "POST" {
+        writer.WriteHeader(http.StatusInternalServerError)
+        return
+    }
+
+    curFileMeta := meta.GetFileMeta(curFileSha1)
+    curFileMeta.FileName = newFileName
+    meta.UpdateFileMeta(curFileMeta)
+
+    data, err := json.Marshal(curFileMeta)
+    if err != nil {
+        writer.WriteHeader(http.StatusInternalServerError)
+        return
+    }
+
+    writer.WriteHeader(http.StatusOK)
+    _, _ = writer.Write(data)
+}
+
+func FileDeleteHandler(writer http.ResponseWriter, request *http.Request) {
+    _ = request.ParseForm()
+    fileSha1 := request.Form.Get("fileHash")
+
+    fileMeta := meta.GetFileMeta(fileSha1)
+    _ = os.Remove(fileMeta.Location)
+
+    meta.RemoveFileMeta(fileSha1)
+    writer.WriteHeader(http.StatusOK)
 }
 
 func FileQueryHandler(writer http.ResponseWriter, request *http.Request) {
