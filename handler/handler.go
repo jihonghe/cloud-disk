@@ -58,7 +58,7 @@ func FileUploadHandler(writer http.ResponseWriter, request *http.Request) {
 
         _, _ = newFile.Seek(0, 0)
         fileMeta.FileSha1 = utils.FileSha1(newFile)
-        meta.UpdateFileMeta(fileMeta)
+        _ = meta.UpdateFileMetaToDB(fileMeta)
 
         http.Redirect(writer, request, "/file/upload/success", http.StatusFound)
     }
@@ -71,7 +71,11 @@ func FileUploadSuccessHandler(writer http.ResponseWriter, request *http.Request)
 func GetFileMetaHandler(writer http.ResponseWriter, request *http.Request) {
     _ = request.ParseForm()
     fileHash := request.Form["fileHash"][0]
-    fileMeta := meta.GetFileMeta(fileHash)
+    fileMeta, err := meta.GetFileMetaFromDB(fileHash)
+    if err != nil {
+        writer.WriteHeader(http.StatusInternalServerError)
+        return
+    }
     data, err := json.Marshal(fileMeta)
     if err != nil {
         writer.WriteHeader(http.StatusInternalServerError)

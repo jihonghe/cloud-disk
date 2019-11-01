@@ -20,6 +20,11 @@ func main() {
     http.HandleFunc("/file/download", handler.FileDownloadHandler)
     http.HandleFunc("/file/update", handler.FileMetaUpdateHandler)
     http.HandleFunc("/file/delete", handler.FileDeleteHandler)
+    
+    http.HandleFunc("/user/signup", handler.UserSignupHandler)
+    http.HandleFunc("/user/signin", handler.UserSignInHandler)
+    // 拦截器的使用
+    http.HandleFunc("/user/info", handler.HttpInterceptor(handler.UserInformationHandler))
     err := http.ListenAndServe(":8080", nil)
 
     if err != nil {
